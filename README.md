@@ -13,7 +13,7 @@ Use composer to add consolefull to your app
 
 ```"luismulinari/consolefull": "*"```
 
-## Usage
+## Usage (example)
 application.php - Entry Point
 ```php
 <?php
