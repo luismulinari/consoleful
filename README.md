@@ -9,15 +9,15 @@ A simple library to work with Symfony Console Component and Symfony Dependency I
 
 ## Instalation
 
-Use composer to add consolefull to your app
+Use composer to add consoleful to your app
 
-```"luismulinari/consolefull": "*"```
+```"luismulinari/consoleful": "*"```
 
-## Usage
+## Usage (example)
 application.php - Entry Point
 ```php
 <?php
-use LuisMulinari\Consolefull\Application;
+use LuisMulinari\Consoleful\Application;
 
 $autoloader = require __DIR__ . '/vendor/autoload.php';
 
@@ -36,7 +36,7 @@ namespace Vendor\ExampleApp\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use LuisMulinari\Consolefull\Command\ContainerAwareCommand;
+use LuisMulinari\Consoleful\Command\ContainerAwareCommand;
 
 class ExampleCommand extends ContainerAwareCommand
 {
