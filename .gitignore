@@ -1,3 +1,6 @@
 .idea
 vendor
 build
+.buildpath
+.project
+.settings
