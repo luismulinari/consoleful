@@ -46,7 +46,7 @@ class Application extends SymfonyConsoleApplication implements ContainerAwareInt
     public function __construct(
         $name = 'UNKNOWN',
         $version = 'UNKNOWN',
-        ContainerConfig $containerConfig,
+        ContainerConfig $containerConfig = null,
         ContainerBuilder $builder = null
     ) {
         parent::__construct($name, $version);
@@ -69,6 +69,10 @@ class Application extends SymfonyConsoleApplication implements ContainerAwareInt
 
     private function injectContainer()
     {
+        if ($this->container === null && $this->containerConfig === null) {
+            return;
+        }
+
         if ($this->container === null) {
             $this->setContainer($this->builder->getContainer($this->containerConfig));
         }

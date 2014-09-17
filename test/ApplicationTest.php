@@ -79,6 +79,31 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      * @covers Lcobucci\DependencyInjection\ContainerInjector::setContainer
      * @covers Lcobucci\DependencyInjection\ContainerInjector::getContainer
      */
+    public function doRunShouldNotBuildTheContainerWhenNoConfigurationWasUsed()
+    {
+        $input = $this->getMock(InputInterface::class);
+        $output = $this->getMock(OutputInterface::class);
+
+        $this->builder->expects($this->never())
+                      ->method('getContainer');
+
+        $application = new Application('name', 'version', null, $this->builder);
+        $application->doRun($input, $output);
+
+        $this->assertAttributeEquals(null, 'container', $application);
+    }
+
+    /**
+     * @test
+     *
+     * @covers LuisMulinari\Consoleful\Application::__construct
+     * @covers LuisMulinari\Consoleful\Application::doRun
+     * @covers LuisMulinari\Consoleful\Application::injectContainer
+     * @covers Symfony\Component\Console\Application::__construct
+     * @covers Symfony\Component\Console\Application::doRun
+     * @covers Lcobucci\DependencyInjection\ContainerInjector::setContainer
+     * @covers Lcobucci\DependencyInjection\ContainerInjector::getContainer
+     */
     public function doRunShouldBuildTheContainerIfItWasnConfiguredYet()
     {
         $input = $this->getMock(InputInterface::class);
