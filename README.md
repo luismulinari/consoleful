@@ -17,11 +17,16 @@ Use composer to add consolefull to your app
 application.php - Entry Point
 ```php
 <?php
+use Lcobucci\DependencyInjection\ContainerConfig;
 use LuisMulinari\Consolefull\Application;
 
 $autoloader = require __DIR__ . '/vendor/autoload.php';
 
-$application = new Application('Application name', 'Version', '/home/example/services.xml'); // services.[xml|yml|php]
+$application = new Application(
+    'Application name',
+    'Version',
+    new ContainerConfig('/home/example/services.xml') // services.[xml|yml|php]
+);
 
 $application->add(new ExampleCommand());
 
@@ -34,12 +39,16 @@ ExampleCommand.php - Command file
 
 namespace Vendor\ExampleApp\Command;
 
+use Lcobucci\DependencyInjection\ContainerInjector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use LuisMulinari\Consolefull\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
-class ExampleCommand extends ContainerAwareCommand
+class ExampleCommand extends Command implements ContainerAwareInterface
 {
+    use ContainerInjector;
+    
     protected function configure()
     {
     }
@@ -47,6 +56,7 @@ class ExampleCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
+        
         $container->get('service.example');
         $container->getParameter('parameter.example');
     }
