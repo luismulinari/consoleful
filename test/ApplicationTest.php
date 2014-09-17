@@ -7,9 +7,14 @@
 
 namespace LuisMulinari\Consoleful;
 
-use LuisMulinari\Consoleful\test\fixtures\ContainerAwareCommandTest;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\NullOutput;
+use Lcobucci\DependencyInjection\ContainerBuilder;
+use Lcobucci\DependencyInjection\ContainerConfig;
+use Lcobucci\DependencyInjection\Builders\DelegatingBuilder;
+use LuisMulinari\Consoleful\fixtures\CommandTest;
+use LuisMulinari\Consoleful\fixtures\ContainerAwareCommandTest;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class ApplicationTest
@@ -19,88 +24,108 @@ use Symfony\Component\Console\Output\NullOutput;
 class ApplicationTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var mixed
+     * @var ContainerBuilder
      */
-    protected $resource;
+    protected $builder;
 
-    public function setUp()
+    /**
+     * @var ContainerConfig
+     */
+    protected $config;
+
+    protected function setUp()
     {
-        $this->resource = __DIR__ . '/fixtures' . DIRECTORY_SEPARATOR . 'services.xml';
+        $this->config = $this->getMock(ContainerConfig::class, [], [], '', false);
+        $this->builder = $this->getMockForAbstractClass(ContainerBuilder::class, [], '', true, true, true, ['getContainer']);
     }
 
     /**
      * @test
+     *
+     * @covers LuisMulinari\Consoleful\Application::__construct
+     * @covers Symfony\Component\Console\Application::__construct
      */
-    public function constructMustCallParentConstructor()
+    public function constructShouldConfigureTheAttributes()
     {
-        $application = new Application('name', 'version', $this->resource);
+        $application = new Application('name', 'version', $this->config, $this->builder);
 
-        $this->assertSame('name', $application->getName());
-        $this->assertSame('version', $application->getVersion());
+        $this->assertAttributeEquals('name', 'name', $application);
+        $this->assertAttributeEquals('version', 'version', $application);
+        $this->assertAttributeSame($this->config, 'containerConfig', $application);
+        $this->assertAttributeSame($this->builder, 'builder', $application);
     }
 
     /**
      * @test
+     *
+     * @covers LuisMulinari\Consoleful\Application::__construct
+     * @covers Symfony\Component\Console\Application::__construct
      */
-    public function constructMustInitializeContainer()
+    public function constructShouldCreateBuilderWhenNotInformed()
     {
-        $application = new Application(null, null, $this->resource);
+        $application = new Application('name', 'version', $this->config);
 
-        $class = new \ReflectionClass('LuisMulinari\Consoleful\Application');
-        $property = $class->getProperty('container');
-        $property->setAccessible(true);
-
-        $this->assertInstanceOf(
-            'Symfony\Component\DependencyInjection\ContainerBuilder',
-            $property->getValue($application)
-        );
+        $this->assertAttributeInstanceOf(DelegatingBuilder::class, 'builder', $application);
     }
 
     /**
      * @test
+     *
+     * @covers LuisMulinari\Consoleful\Application::__construct
+     * @covers LuisMulinari\Consoleful\Application::doRun
+     * @covers LuisMulinari\Consoleful\Application::injectContainer
+     * @covers Symfony\Component\Console\Application::__construct
+     * @covers Symfony\Component\Console\Application::doRun
+     * @covers Lcobucci\DependencyInjection\ContainerInjector::setContainer
+     * @covers Lcobucci\DependencyInjection\ContainerInjector::getContainer
      */
-    public function doRunMustSetContainerInContainerAwareInterfaceCommands()
+    public function doRunShouldBuildTheContainerIfItWasnConfiguredYet()
     {
-        $application = new Application(null, null, $this->resource);
+        $input = $this->getMock(InputInterface::class);
+        $output = $this->getMock(OutputInterface::class);
+        $container = $this->getMock(ContainerInterface::class);
 
-        $class = new \ReflectionClass($application);
-        $property = $class->getProperty('container');
-        $property->setAccessible(true);
-        $container = $property->getValue($application);
+        $this->builder->expects($this->once())
+                      ->method('getContainer')
+                      ->with($this->config)
+                      ->willReturn($container);
 
-        $command2 = new ContainerAwareCommandTest();
-
-        $application->add($command2);
-
-        $input = new ArgvInput(['command:test']);
-        $output = new NullOutput();
+        $application = new Application('name', 'version', $this->config, $this->builder);
         $application->doRun($input, $output);
 
-        $getContainerReflectionMethod = new \ReflectionMethod(
-            $command2, 'getContainer'
-        );
-        $getContainerReflectionMethod->setAccessible(true);
-
-        $this->assertSame($container, $getContainerReflectionMethod->invoke($command2));
+        $this->assertAttributeSame($container, 'container', $application);
     }
 
     /**
      * @test
+     *
+     * @covers LuisMulinari\Consoleful\Application::__construct
+     * @covers LuisMulinari\Consoleful\Application::doRun
+     * @covers LuisMulinari\Consoleful\Application::injectContainer
+     * @covers Symfony\Component\Console\Application::__construct
+     * @covers Symfony\Component\Console\Application::add
+     * @covers Symfony\Component\Console\Application::doRun
+     * @covers Lcobucci\DependencyInjection\ContainerInjector::setContainer
+     * @covers Lcobucci\DependencyInjection\ContainerInjector::getContainer
      */
-    public function buildContainerShouldNotCreateNewContainerIfContainerExists()
+    public function doRunShouldInjectTheContainerOnContainerAwareCommands()
     {
-        $application = new Application(null, null, $this->resource);
+        $input = $this->getMock(InputInterface::class);
+        $output = $this->getMock(OutputInterface::class);
+        $container = $this->getMock(ContainerInterface::class);
 
-        $class = new \ReflectionClass($application);
-        $property = $class->getProperty('container');
-        $property->setAccessible(true);
+        $this->builder->expects($this->never())
+                      ->method('getContainer');
 
-        $container = $property->getValue($application);
+        $command = new CommandTest();
+        $command2 = new ContainerAwareCommandTest();
 
-        $buildContainerReflectionMethod = new \ReflectionMethod($application, 'buildContainer');
-        $buildContainerReflectionMethod->setAccessible(true);
-        $buildContainerReflectionMethod->invoke($application, $this->resource);
+        $application = new Application('name', 'version', $this->config, $this->builder);
+        $application->add($command);
+        $application->add($command2);
+        $application->setContainer($container);
+        $application->doRun($input, $output);
 
-        $this->assertSame($container, $property->getValue($application));
+        $this->assertAttributeSame($container, 'container', $command2);
     }
 }

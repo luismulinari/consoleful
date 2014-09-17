@@ -1,6 +1,6 @@
 <?php
 
-namespace LuisMulinari\Consoleful\test\fixtures;
+namespace LuisMulinari\Consoleful\fixtures;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

@@ -7,45 +7,52 @@
 
 namespace LuisMulinari\Consoleful;
 
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\DelegatingLoader;
-use Symfony\Component\Config\Loader\LoaderResolver;
+use Lcobucci\DependencyInjection\Builders\DelegatingBuilder;
+use Lcobucci\DependencyInjection\ContainerBuilder;
+use Lcobucci\DependencyInjection\ContainerConfig;
+use Lcobucci\DependencyInjection\ContainerInjector;
 use Symfony\Component\Console\Application as SymfonyConsoleApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
  * This class extends Symfony Console Application and build a dependency injection container
  *
  * @author Luis Henrique Mulinari <luis.mulinari@gmail.com>
  */
-class Application extends SymfonyConsoleApplication
+class Application extends SymfonyConsoleApplication implements ContainerAwareInterface
 {
+    use ContainerInjector;
+
     /**
-     * Symfony dependency injection container
-     *
-     * @var ContainerInterface
+     * @var ContainerBuilder
      */
-    protected $container;
+    private $builder;
+
+    /**
+     * @var ContainerConfig
+     */
+    private $containerConfig;
 
     /**
      * Class constructor
      *
      * @param string $name
      * @param string $version
-     * @param mixed $resource
+     * @param ContainerConfig $containerConfig
+     * @param ContainerBuilder $builder
      */
-    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $resource)
-    {
+    public function __construct(
+        $name = 'UNKNOWN',
+        $version = 'UNKNOWN',
+        ContainerConfig $containerConfig,
+        ContainerBuilder $builder = null
+    ) {
         parent::__construct($name, $version);
 
-        $this->buildContainer($resource);
+        $this->containerConfig = $containerConfig;
+        $this->builder = $builder ?: new DelegatingBuilder();
     }
 
     /**
@@ -55,36 +62,21 @@ class Application extends SymfonyConsoleApplication
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        foreach ($this->all() as $command) {
-            if ($command instanceof ContainerAwareInterface) {
-                $command->setContainer($this->container);
-            }
-        }
+        $this->injectContainer();
 
         parent::doRun($input, $output);
     }
 
-    /**
-     * Build a dependency injection container
-     *
-     * @param mixed $resource
-     */
-    protected function buildContainer($resource)
+    private function injectContainer()
     {
         if ($this->container === null) {
-            $this->container = new ContainerBuilder();
+            $this->setContainer($this->builder->getContainer($this->containerConfig));
+        }
 
-            $fileLocator = new FileLocator(dirname($resource));
-
-            $loaderResolver = new LoaderResolver(
-                [
-                    new XmlFileLoader($this->container, $fileLocator),
-                    new YamlFileLoader($this->container, $fileLocator),
-                    new PhpFileLoader($this->container, $fileLocator)
-                ]
-            );
-            $loader = new DelegatingLoader($loaderResolver);
-            $loader->load(basename($resource));
+        foreach ($this->all() as $command) {
+            if ($command instanceof ContainerAwareInterface) {
+                $command->setContainer($this->container);
+            }
         }
     }
 }
