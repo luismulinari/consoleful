@@ -12,10 +12,10 @@
     "license" : ["BSD-3-Clause"],
     "require": {
         "php": ">=5.5",
-        "symfony/config": "2.6.*@dev",
-        "symfony/dependency-injection": "2.6.*@dev",
-        "symfony/console": "2.6.*@dev",
-        "symfony/expression-language": "2.6.*@dev",
+        "symfony/config": "2.5.*@dev",
+        "symfony/dependency-injection": "2.5.*@dev",
+        "symfony/console": "2.5.*@dev",
+        "symfony/expression-language": "2.5.*@dev",
         "lcobucci/di-builder": "dev-develop@dev"
     },
     "require-dev" : {
