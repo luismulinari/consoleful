@@ -36,7 +36,15 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->config = $this->getMock(ContainerConfig::class, [], [], '', false);
-        $this->builder = $this->getMockForAbstractClass(ContainerBuilder::class, [], '', true, true, true, ['getContainer']);
+        $this->builder = $this->getMockForAbstractClass(
+            ContainerBuilder::class,
+            [],
+            '',
+            true,
+            true,
+            true,
+            ['getContainer']
+        );
     }
 
     /**
