@@ -4,9 +4,9 @@ A simple library to work with Symfony Console Component and Symfony Dependency I
 
 =======
 [![Latest Stable Version](https://poser.pugx.org/luismulinari/consoleful/v/stable.svg)](https://packagist.org/packages/luismulinari/consoleful)
-[![Code Climate](https://codeclimate.com/github/luismulinari/consoleful/badges/gpa.svg)](https://codeclimate.com/github/luismulinari/consoleful)
-[![Test Coverage](https://codeclimate.com/github/luismulinari/consoleful/badges/coverage.svg)](https://codeclimate.com/github/luismulinari/consoleful)
 [![Build Status](https://travis-ci.org/luismulinari/consoleful.svg?branch=master)](https://travis-ci.org/luismulinari/consoleful)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/luismulinari/consoleful/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/luismulinari/consoleful/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/luismulinari/consoleful/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/luismulinari/consoleful/?branch=master)
 
 ## Instalation
 
@@ -26,7 +26,7 @@ $autoloader = require __DIR__ . '/vendor/autoload.php';
 $application = new Application(
     'Application name',
     'Version',
-    new ContainerConfig('/home/example/services.xml') // services.[xml|yml|php]
+    new ContainerConfig(__DIR__ . 'services.xml') // services.[xml|yml|php]
 );
 
 $application->add(new ExampleCommand());
@@ -63,3 +63,4 @@ class ExampleCommand extends Command implements ContainerAwareInterface
     }
 }
 ```
+You can see another examples [here](https://github.com/luismulinari/consoleful/tree/master/example)
