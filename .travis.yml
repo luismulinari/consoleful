@@ -7,11 +7,13 @@ php:
 before_script:
   - composer selfupdate
   - composer install --prefer-dist -o
-  - wget https://scrutinizer-ci.com/ocular.phar
-  - php ocular.phar code-coverage:upload --access-token=${SCRUTINIZER_ACCESS_TOKEN} --format=php-clover coverage.clover
 
 script:
   - phpunit --coverage-text --coverage-clover=coverage.clover
+
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --access-token=${SCRUTINIZER_ACCESS_TOKEN} --format=php-clover coverage.clover
 
 env:
   global:
