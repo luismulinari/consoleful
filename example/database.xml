@@ -1,0 +1,24 @@
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="database.connection.params" type="collection">
+            <parameter key="dbname">__dbname__</parameter>
+            <parameter key="user">__user__</parameter>
+            <parameter key="password">__password__</parameter>
+            <parameter key="host">127.0.0.1</parameter>
+            <parameter key="driver">pdo_mysql</parameter>
+        </parameter>
+    </parameters>
+
+    <services>
+        <service id="database.connection" alias="doctrine.dbal.connection"/>
+
+        <service id="doctrine.dbal.configuration" class="Doctrine\DBAL\Configuration" />
+        <service id="doctrine.dbal.connection" class="Doctrine\DBAL\Connection" factory-class="Doctrine\DBAL\DriverManager" factory-method="getConnection">
+            <argument>%database.connection.params%</argument>
+            <argument type="service" id="doctrine.dbal.configuration" />
+        </service>
+    </services>
+</container>
