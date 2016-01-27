@@ -1,6 +1,18 @@
 language: php
+sudo: false
+
 php:
   - 5.5
+
 before_script:
   - composer selfupdate
   - composer install --prefer-dist -o
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --access-token=${SCRUTINIZER_ACCESS_TOKEN} --format=php-clover coverage.clover
+
+script:
+  - phpunit --coverage-text --coverage-clover=coverage.clover
+
+env:
+  global:
+    secure: CvsusulUSkmxJ9o+FM0IChni4vbM36zchQeHUHL8DmsG9LrR7zLLOjPOuv9INQMrSmdTAVu1v61KMJnn74A+QvMAJaE5ooF5qxqw2Kkby2FvEKJ3OzYp8Wl89C3gtYqOmPFN/cxrTUVKZYqRP/fi6WgnVK1M4bwbEpwnsBlNgYM=
