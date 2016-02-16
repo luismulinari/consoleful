@@ -40,20 +40,14 @@ ExampleCommand.php - Command file
 
 namespace Vendor\ExampleApp\Command;
 
-use Lcobucci\DependencyInjection\ContainerInjector;
+use LuisMulinari\Consoleful\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
-class ExampleCommand extends Command implements ContainerAwareInterface
+class ExampleCommand extends ContainerAwareCommand
 {
-    use ContainerInjector;
-    
-    protected function configure()
-    {
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
