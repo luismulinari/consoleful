@@ -48,6 +48,12 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
 class ExampleCommand extends ContainerAwareCommand
 {
+    protected function configure()
+    {
+        $this->setName("example");
+        $this->setDescription('Description example');
+    }
+    
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
