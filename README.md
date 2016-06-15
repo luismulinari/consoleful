@@ -63,4 +63,4 @@ class ExampleCommand extends ContainerAwareCommand
     }
 }
 ```
-You can see another examples [here](https://github.com/luismulinari/consoleful/tree/master/example)
+You can see other examples [here](https://github.com/luismulinari/consoleful/tree/master/example)
